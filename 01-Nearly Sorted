@@ -1,0 +1,75 @@
+//Bruteforce Approach (TC: O(n*k))
+
+public class Solution {
+    public static int[] nearlySorted(int[] arr, int n, int k) {
+        for (int i = 1; i < n; i++) {
+            int temp = arr[i];
+            int j = i - 1;
+
+            while (j >= 0 && arr[j] > temp) {
+                arr[j + 1] = arr[j];
+                j--;
+            }
+
+            arr[j + 1] = temp;
+        }
+
+        return arr;
+    }
+}
+
+
+//Better Approach (TC: O(nlogn))
+
+public class Solution {
+  public static int[] nearlySorted(int[] arr, int n, int k) {
+    Arrays.sort(arr);
+    return arr;
+  }
+}
+
+
+/*
+Given,
+k=3; and int[]arr = {6, 5, 3, 2, 8, 10, 9};
+
+int[]sorted={2, 3, 5, 6, 8, 9, 10};
+
+=>For ‘i’th index element in a sorted array, range in the nearly sorted array will be:
+    
+  (i-k) <= i <= (i+k)
+
+
+For i=0, sorted[0] i.e 2 range will be : i <= 3
+For i=1, sorted[1] i.e 3 range will be : 0<= i <= 4
+For i=2, sorted[2] i.e 5 range will be : 0<= i <= 5
+For i=3, sorted[3] i.e 6 range will be : 0<= i <= 6
+For i=4, sorted[4] i.e 8 range will be : 1<= i <= 7
+For i=5, sorted[5] i.e 9 range will be : 2<= i <= 8
+For i=6, sorted[6] i.e 10 range will be : 3<= i <= 9
+*/
+
+//Optimal Approach (O(nlogk))
+
+public class Solution {
+    public static int[] nearlySorted(int[] arr, int n, int k) {
+        Queue<Integer> minHeap = new PriorityQueue<>();
+        int index = 0;
+
+        for (int i = 0; i < k; i++) {
+            minHeap.add(arr[i]);
+        }
+
+        for (int i = k; i < n; i++) {
+            minHeap.add(arr[i]);
+            arr[index++] = minHeap.peek();
+            minHeap.poll();
+        }
+
+        while (!minHeap.isEmpty()) {
+            arr[index++] = minHeap.poll();
+        }
+
+        return arr;
+    }
+}

@@ -1,0 +1,232 @@
+//Bruteforce Approach: (Sort in Ascending Order using inbuilt Arrays.sort() method or using any Sorting Algorithm and return Kth Element From the Begining)
+
+class Solution {
+    public static int kthSmallest(int[] arr, int lb, int ub, int k) {
+        Arrays.sort(arr);
+        return arr[k - 1];
+    }
+}
+
+//Better Approach: (Using Descending Bubble Sort)
+
+class Solution {
+    public static int kthSmallest(int[] arr, int k) {
+        for (int pass = 1; pass <= k; pass++) {
+            boolean swap = false;
+
+            for (int j = 0; j < (arr.length - pass); j++) {
+                if (arr[j] < arr[j + 1]) {
+                    swap = true;
+                    // Swapping
+                    swap(arr, j, j + 1);
+                }
+            }
+
+            if (swap == false) {
+                break;
+            }
+        }
+        return arr[arr.length - k];// Kth element from last i.e Kth smallest element in the array
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+//Good Approach (Using QuickSelect)
+
+class Solution {
+    public static int kthSmallest(int[] arr, int k) {
+        return quickSelect(arr, 0, arr.length - 1, k);
+    }
+
+    private static int quickSelect(int[] arr, int lb, int ub, int k) {
+        if (lb < ub) {
+            int index = partition(arr, lb, ub);
+
+            if ((k - 1) == index) {
+                return arr[k - 1];
+            } else if ((k - 1) < index) {
+                return quickSelect(arr, lb, index - 1, k);
+            } else {
+                return quickSelect(arr, index + 1, ub, k);
+            }
+        }
+        // if(lb==ub)
+        return arr[lb]; // return arr[ub];
+    }
+
+    private static int partition(int[] arr, int lb, int ub) {
+        int i = lb, j = ub, pivot = arr[lb], n = arr.length;
+
+        while (true) {
+            while (i < arr.length && arr[i] <= pivot) {
+                i++;
+            }
+
+            while (j >= 0 && arr[j] > pivot) {
+                j--;
+            }
+
+            if (i < j) { // Swap arr[i] and arr[j]
+                swap(arr, i, j);
+            } else { // if i > j => Swap Pivot(i.e arr[lb]) and arr[j]
+                swap(arr, lb, j);
+                break;
+            }
+        }
+
+        return j; // index of pivot element
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+//Optimal Approach
+
+//Method 1 : Using MaxHeap
+
+class Solution {
+    public static int kthSmallest(int[] arr, int k) {
+        int n = arr.length;
+        buildMaxHeap(arr, n);
+
+        for (int i = 1; i <= (n - k); i++) {
+            arr[0] = arr[n - i];
+            heapify(arr, n - i, 0);
+        }
+
+        return arr[0];
+    }
+
+    private static void buildMaxHeap(int arr[], int n) {
+        for (int i = ((n / 2) - 1); i >= 0; i--) {
+            heapify(arr, n, i);
+        }
+    }
+
+    // Heapify function to maintain MaxHeap property.
+    private static void heapify(int arr[], int n, int i) {
+        int maxIdx = i;
+        int leftChildIdx = (2 * i) + 1;
+        int rightChildIdx = (2 * i) + 2;
+
+        if (leftChildIdx < n && arr[maxIdx] < arr[leftChildIdx]) {
+            maxIdx = leftChildIdx;
+        }
+
+        if (rightChildIdx < n && arr[maxIdx] < arr[rightChildIdx]) {
+            maxIdx = rightChildIdx;
+        }
+
+        if (maxIdx != i) {
+            swap(arr, i, maxIdx);
+            heapify(arr, n, maxIdx);
+        }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+// Aliter
+
+class Solution {
+    public static int kthSmallest(int[] arr, int k) {
+        Queue<Integer> maxHeap = new PriorityQueue<>((num1, num2) -> num2 - num1);
+
+        // Adding elements to the heap
+        for (int num : arr) {
+            maxHeap.add(num);
+        }
+
+        // Remove elements until we have the k smallest elements
+        for (int i = 0; i < arr.length - k; i++) {
+            maxHeap.poll();
+        }
+
+        // The root of the max-heap is the kth smallest element
+        return maxHeap.poll();
+    }
+}
+
+
+
+//Method 2- Using MinHeap
+
+class Solution {
+    public static int kthSmallest(int[] arr, int k) {
+        int n = arr.length;
+        buildMinHeap(arr, n);
+
+        for (int i = 1; i <= (k - 1); i++) {
+            arr[0] = arr[n - i];
+            heapify(arr, n - i, 0);
+        }
+
+        return arr[0];
+    }
+
+    private static void buildMinHeap(int arr[], int n) {
+        for (int i = ((n / 2) - 1); i >= 0; i--) {
+            heapify(arr, n, i);
+        }
+    }
+
+    // Heapify function to maintain MinHeap property.
+    private static void heapify(int arr[], int n, int i) {
+        int minIdx = i, leftChildIdx = (2 * i) + 1, rightChildIdx = (2 * i) + 2;
+
+        if (leftChildIdx < n && arr[minIdx] > arr[leftChildIdx]) {
+            minIdx = leftChildIdx;
+        }
+
+        if (rightChildIdx < n && arr[minIdx] > arr[rightChildIdx]) {
+            minIdx = rightChildIdx;
+        }
+
+        if (minIdx != i) {
+            swap(arr, i, minIdx);
+            heapify(arr, n, minIdx);
+        }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+// Aliter
+
+class Solution {
+    public static int kthSmallest(int[] arr, int k) {
+        Queue<Integer> minHeap = new PriorityQueue<>();
+
+        // Add all elements to the min-heap
+        for (int num : arr) {
+            minHeap.add(num);
+        }
+
+        // Remove the smallest elements until we reach the k-th smallest
+        for (int i = 1; i < k; i++) {
+            minHeap.poll();
+        }
+
+        // The root of the heap now contains the k-th smallest element
+        return minHeap.poll();
+    }
+}

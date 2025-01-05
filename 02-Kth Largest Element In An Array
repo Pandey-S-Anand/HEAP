@@ -1,0 +1,249 @@
+//Bruteforce Approach :(Sort in ascending order using inbuilt Arrays.sort() method or using any sorting algorithm and return Kth element from the last)
+
+class Solution {
+    public int findKthLargest(int[] arr, int k) {
+        Arrays.sort(arr);
+        return arr[arr.length - k];
+    }
+}
+
+
+//Better Approach: (Using Bubble Sort)(Idea : https://youtu.be/o4bAoo_gFBU)
+
+class Solution {
+    public int findKthLargest(int[] arr, int k) {
+        for (int pass = 1; pass <= k; pass++) {
+            boolean swap = false;
+
+            for (int j = 0; j < (arr.length - pass); j++) {
+                if (arr[j] > arr[j + 1]) {
+                    swap = true;
+                    // Swapping
+                    swap(arr, j, j + 1);
+                }
+            }
+
+            if (swap == false) {
+                break;
+            }
+        }
+
+        return arr[arr.length - k];// Kth element from Last i.e Kth largest element in the Array
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+//Good Approach
+
+class Solution {
+    public int findKthLargest(int[] arr, int k) {
+        return quickSelect(arr, 0, arr.length - 1, k);
+    }
+
+    private int quickSelect(int[] arr, int lb, int ub, int k) {
+        if (lb < ub) {
+            int index = partition(arr, lb, ub);
+
+            if ((arr.length - k) == index) {
+                return arr[arr.length - k];
+            } else if ((arr.length - k) < index) {
+                return quickSelect(arr, lb, index - 1, k);
+            } else {
+                return quickSelect(arr, index + 1, ub, k);
+            }
+        }
+        // if(lb==ub)
+        return arr[lb]; // return arr[ub];
+    }
+
+    private int partition(int[] arr, int lb, int ub) {
+        int i = lb, j = ub, pivot = arr[lb];
+
+        while (true) {
+            while (i < arr.length && arr[i] <= pivot) {
+                i++;
+            }
+
+            while (j >= 0 && arr[j] > pivot) {
+                j--;
+            }
+
+            if (i < j) { // Swap arr[i] and arr[j]
+                swap(arr, i, j);
+            } else { // if i>j => Swap Pivot(i.e arr[lb]) and arr[j])
+                swap(arr, lb, j);
+                break;
+            }
+        }
+
+        return j; // index of pivot element
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+//Optimal Approach 
+
+// Method 1- Using MaxHeap
+
+class Solution {
+    public int findKthLargest(int[] arr, int k) {
+        int n = arr.length;
+        buildMaxHeap(arr, n);
+
+        for (int i = 1; i <= (k - 1); i++) {
+            arr[0] = arr[n - i];
+            heapify(arr, n - i, 0);
+        }
+
+        return arr[0];
+    }
+
+    private void buildMaxHeap(int arr[], int n) {
+        for (int i = ((n / 2) - 1); i >= 0; i--) {
+            heapify(arr, n, i);
+        }
+    }
+
+    // Heapify function to maintain MaxHeap property.
+    private void heapify(int arr[], int n, int i) {
+        int maxIdx = i, leftChildIdx = (2 * i) + 1, rightChildIdx = (2 * i) + 2;
+
+        if (leftChildIdx < n && arr[maxIdx] < arr[leftChildIdx]) {
+            maxIdx = leftChildIdx;
+        }
+
+        if (rightChildIdx < n && arr[maxIdx] < arr[rightChildIdx]) {
+            maxIdx = rightChildIdx;
+        }
+
+        if (maxIdx != i) {
+            swap(arr, i, maxIdx);
+            heapify(arr, n, maxIdx);
+        }
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+// Aliter
+
+class Solution {
+    public int findKthLargest(int[] arr, int k) {
+        Queue<Integer> maxHeap = new PriorityQueue<>((num1, num2) -> num2 - num1);
+
+        // Add all elements to the max heap
+        for (int num : arr) {
+            maxHeap.add(num);
+        }
+
+        // Remove the top (largest) k-1 elements
+        for (int cnt = 1; cnt < k; cnt++) {
+            maxHeap.poll();
+        }
+
+        // The k-th largest element is now at the top of the heap
+        return maxHeap.poll();
+    }
+}
+
+
+//Method 2 -Using MinHeap
+
+/*
+n = 8;
+k = 3;
+
+Given the array arr[] = {1, 2, 3, 4, 5, 6, 7, 8}, and we are asked to find the k-th largest element (k = 3).
+
+The 3rd largest element is located at position (n - k), i.e., 8 - 3 = 5th index (value = 6). 
+So, the 3rd largest element is the same as the (n-k+1)th smallest element in the array, which in this case is the 6th smallest element.
+
+To identify the k-th largest element using a min heap, we:
+1. Insert all elements into the heap.
+2. Remove the smallest elements (up to the position n-k), leaving the top (n-k+1)th smallest element as the desired result.
+
+For example, if we delete elements from index 1 to (n-k) (i.e., from index 1 to index 5), 
+the element at position (n-k+1) (which is the 6th element in this case) will be the 3rd largest (or the 6th smallest) element.
+*/
+
+
+class Solution {
+    public int findKthLargest(int[] arr, int k) {
+        int n = arr.length;
+        buildMinHeap(arr, n);
+
+        for (int i = 1; i <= (n - k); i++) {
+            arr[0] = arr[n - i];
+            heapify(arr, n - i, 0);
+        }
+
+        return arr[0];
+    }
+
+    private void buildMinHeap(int arr[], int n) {
+        for (int i = ((n / 2) - 1); i >= 0; i--) {
+            heapify(arr, n, i);
+        }
+    }
+
+    // Heapify function to maintain MinHeap property.
+    private void heapify(int arr[], int n, int i) {
+        int minIdx = i, leftChildIdx = (2 * i) + 1, rightChildIdx = (2 * i) + 2;
+
+        if (leftChildIdx < n && arr[minIdx] > arr[leftChildIdx]) {
+            minIdx = leftChildIdx;
+        }
+
+        if (rightChildIdx < n && arr[minIdx] > arr[rightChildIdx]) {
+            minIdx = rightChildIdx;
+        }
+
+        if (minIdx != i) {
+            swap(arr, i, minIdx);
+            heapify(arr, n, minIdx);
+        }
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+// Aliter
+
+class Solution {
+    public int findKthLargest(int[] arr, int k) {
+        Queue<Integer> minHeap = new PriorityQueue<>();
+
+        // Adding all elements to the min-heap
+        for (int num : arr) {
+            minHeap.add(num);
+        }
+
+        // Remove the smallest elements until only k largest elements remain
+        for (int i = 0; i < (arr.length - k); i++) {
+            minHeap.poll();
+        }
+
+        // The root of the min-heap is the k-th largest element
+        return minHeap.poll();
+    }
+}
